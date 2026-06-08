@@ -1,0 +1,15 @@
+[project]
+name = "sd-v5"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "datasets>=4.8.5",
+    "diffusers>=0.37.1",
+    "ipykernel>=7.2.0",
+    "matplotlib>=3.10.9",
+    "torch>=2.12.0",
+    "torchvision>=0.27.0",
+    "transformers>=5.10.2",
+]
