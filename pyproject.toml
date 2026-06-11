@@ -8,6 +8,7 @@ dependencies = [
     "accelerate>=1.13.0",
     "datasets>=4.8.5",
     "diffusers>=0.37.1",
+    "gradio>=6.17.3",
     "ipykernel>=7.2.0",
     "matplotlib>=3.10.9",
     "torch>=2.12.0",
