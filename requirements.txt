@@ -1,0 +1,5 @@
+accelerate>=1.13.0
+diffusers>=0.37.1
+huggingface_hub
+torch>=2.12.0
+transformers>=5.10.2
