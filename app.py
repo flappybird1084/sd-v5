@@ -1,14 +1,23 @@
 import argparse
+import os
 
 import gradio as gr
 import torch
 from diffusers import AutoencoderKL
+from huggingface_hub import hf_hub_download
 from transformers import CLIPProcessor, CLIPTextModelWithProjection
 
 from components.model3 import DiffusionModel
 
+HF_REPO_ID = "flappybird1084/sd-v4"
+HF_CHECKPOINT = "model-v3.pth"
+
 parser = argparse.ArgumentParser()
-parser.add_argument("--checkpoint", required=True, help="path to .pth state_dict")
+parser.add_argument(
+    "--checkpoint",
+    default=f"checkpoints/{HF_CHECKPOINT}",
+    help=f"path to .pth state_dict (downloaded from {HF_REPO_ID} if not found locally)",
+)
 parser.add_argument(
     "--device",
     choices=["cpu", "cuda"],
@@ -46,6 +55,9 @@ def embed_text(text):
 
 
 def load_model(checkpoint):
+    if not os.path.exists(checkpoint):
+        print(f"Checkpoint {checkpoint} not found locally, downloading from {HF_REPO_ID}")
+        checkpoint = hf_hub_download(repo_id=HF_REPO_ID, filename=HF_CHECKPOINT)
     model = DiffusionModel(image_tokens=IMAGE_TOKENS, dim=DIM, num_layers=NUM_LAYERS, nhead=N_HEAD).to(device)
     state = torch.load(checkpoint, map_location=device)
     model.load_state_dict(state)
