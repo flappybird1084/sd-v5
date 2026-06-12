@@ -109,11 +109,16 @@ def scrubber_html(frames, labels, total):
         "c.querySelector('.rf-step').textContent="
         f"'step '+c.dataset.labels.split(',')[this.value]+' / {total}';"
     )
+    slider = (
+        f'<input type="range" min="0" max="{n - 1}" value="{n - 1}" step="1" '
+        f'style="width:100%;max-width:512px;display:block;margin:8px auto;" oninput="{oninput}"/>'
+        if n > 1
+        else ""  # single frame: nothing to scrub
+    )
     return (
         f'<div class="rf-scrub" data-labels="{",".join(str(s) for s in labels)}" style="text-align:center;">'
         f"{imgs}"
-        f'<input type="range" min="0" max="{n - 1}" value="{n - 1}" step="1" '
-        f'style="width:100%;max-width:512px;display:block;margin:8px auto;" oninput="{oninput}"/>'
+        f"{slider}"
         f'<p class="rf-step" style="font-family:monospace;">step {labels[-1]} / {total}</p>'
         "</div>"
     )
@@ -123,8 +128,9 @@ def generate(prompt, steps, guidance_scale, seed, preview_every, progress=gr.Pro
     if seed is not None and int(seed) >= 0:
         torch.manual_seed(int(seed))
 
-    steps = int(steps)
-    preview_every = int(preview_every)
+    steps = max(1, int(steps))
+    # clamp: 0/negative would crash the modulo below, > steps means final frame only
+    preview_every = max(1, min(int(preview_every), steps))
 
     with torch.no_grad():
         progress(0, desc="encoding prompt")
@@ -166,7 +172,7 @@ def build_ui():
                 guidance = gr.Slider(0.0, 10.0, value=2.0, step=0.1, label="Guidance scale")
                 seed = gr.Number(value=-1, label="Seed (-1 = random)", precision=0)
                 preview_every = gr.Slider(
-                    1, 10, value=2, step=1,
+                    1, 200, value=2, step=1,
                     label="Preview every N steps (each preview adds a VAE decode)",
                 )
                 btn = gr.Button("Generate", variant="primary")
